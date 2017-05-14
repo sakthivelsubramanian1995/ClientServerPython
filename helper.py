@@ -130,7 +130,7 @@ class Helper:
 
   @staticmethod
   def close_all_active_users():
-    with open('active_users.txt') as file:
+    with open('active_users.txt', 'w') as file:
       file.truncate()
 
   @staticmethod

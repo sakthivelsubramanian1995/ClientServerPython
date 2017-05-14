@@ -1,6 +1,7 @@
 import socket
 from threading import Thread
 from helper import *
+import os
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 HOST = '127.0.0.1'
@@ -86,4 +87,4 @@ while True:
     print "Closing server"
     Helper.close_all_active_users()
     server_socket.close()
-    exit(1)
+    os._exit(1)
