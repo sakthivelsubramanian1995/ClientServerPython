@@ -113,8 +113,8 @@ class Helper:
   @staticmethod
   def format_response(response):
     response = json.loads(response)
-    for key, value in response.iteritems():
-      print Helper.keys[key] or key, " ==>> ", value
+    for key, value in response.items():
+      print(Helper.keys[key] or key, " ==>> ", value)
 
   @staticmethod
   def parse_users():
@@ -177,7 +177,7 @@ class Helper:
   @staticmethod
   def validate_login_access(response):
     response = json.loads(response)
-    print response['message']
+    print(response['message'])
     if response['status'] == 'successful':
       return "success"
     return response['stand']

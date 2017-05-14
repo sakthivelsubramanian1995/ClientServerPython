@@ -29,37 +29,40 @@ class Client (Thread):
 
       #waiting for input from client
       while True:
-        option = self.connection.recv(1024)
+        option = self.connection.recv(1024).decode('utf-8')
         if not option:
           raise Exception('Client is disconnected')
         method = Helper.OPTION_TO_METHOD_MAPPING[int(option)]
         getattr(self, method)()
 
     except Exception as e:
-      print "Client is disconnected"
+      print("Client is disconnected")
       if hasattr(self, 'username'):
         Helper.remove_user_from_active(self.username)
       return
 
   def get_server_name_ip(self):
-    self.connection.send('ack')
-    organisation_name = self.connection.recv(1024)
+    self.connection.send('ack'.encode('utf-8'))
+    organisation_name = self.connection.recv(1024).decode('utf-8')
     organisation = Helper.find_organisation(organisation_name)
-    self.connection.send(organisation)
+    self.connection.send(organisation.encode('utf-8'))
 
   def get_statistics(self):
     statistics = Helper.get_statistics()
-    self.connection.send(statistics)
+    self.connection.send(statistics.encode('utf-8'))
 
   def add_new_organisation(self):
-    organisation = self.connection.recv(1024)
+    organisation = self.connection.recv(1024).decode('utf-8')
     status = Helper.add_new_organisation(organisation)
-    self.connection.send(status)
+    self.connection.send(status.encode('utf-8'))
 
   def remove_organisation(self):
-    organisation_name = self.connection.recv(1024)
+    organisation_name = self.connection.recv(1024).decode('utf-8')
     status = Helper.remove_organisation(organisation_name)
-    self.connection.send(status)
+    self.connection.send(status.encode('utf-8'))
+
+  def quit_program(self):
+    pass
 
 def create_client(connection, client_addr):
   client = Client(connection, client_addr)
@@ -68,12 +71,12 @@ def create_client(connection, client_addr):
 def validate_client(connection):
   #validates username and password
   for index in [1,2,3]:
-    print "Waiting for username and password"
-    credentials = connection.recv(1024)
-    print "Credentials received"
+    print("Waiting for username and password")
+    credentials = connection.recv(1024).decode('utf-8')
+    print("Credentials received")
     (valid, username, response) = Helper.authenticate(credentials)
-    print response
-    connection.send(Helper.validate_and_format_response(response, index))
+    print(response)
+    connection.send(Helper.validate_and_format_response(response, index).encode('utf-8'))
     if valid:
       return True, username
   return False, username
@@ -81,10 +84,10 @@ def validate_client(connection):
 while True:
   try:
     connection, client_addr = server_socket.accept() 
-    print client_addr
+    print(client_addr)
     create_client(connection, client_addr)
   except KeyboardInterrupt:
-    print "Closing server"
+    print("Closing server")
     Helper.close_all_active_users()
     server_socket.close()
     os._exit(1)
