@@ -5,9 +5,13 @@ import os
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 HOST = '127.0.0.1'
-PORT = 1234
+PORT = 1235
 
-server_socket.bind((HOST, PORT))
+try:
+  server_socket.bind((HOST, PORT))
+except:
+  print("PORT in use")
+  exit(1)
 server_socket.listen(5)
 
 class Client (Thread):
@@ -15,6 +19,8 @@ class Client (Thread):
     Thread.__init__(self)
     self.connection = connection
     self.client_addr = client_addr
+    self.add_org = 0
+    self.remove_org = 0
 
   def run(self):
     #Sending a greeting message
@@ -53,13 +59,29 @@ class Client (Thread):
 
   def add_new_organisation(self):
     organisation = self.connection.recv(1024).decode('utf-8')
-    status = Helper.add_new_organisation(organisation)
-    self.connection.send(status.encode('utf-8'))
+    status, status_message = Helper.add_new_organisation(organisation)
+    if status ==  False:
+      self.add_org += 1
+      if self.add_org == 3:
+        self.connection.send("terminate".encode('utf-8'))
+        raise Exception("terminate")
+    else:
+      self.remove_org = 0
+      self.add_org = 0
+    self.connection.send(status_message.encode('utf-8'))
 
   def remove_organisation(self):
     organisation_name = self.connection.recv(1024).decode('utf-8')
-    status = Helper.remove_organisation(organisation_name)
-    self.connection.send(status.encode('utf-8'))
+    status, status_message = Helper.remove_organisation(organisation_name)
+    if status ==  False:
+      self.remove_org = self.remove_org + 1
+      if self.remove_org == 3:
+        self.connection.send("terminate".encode('utf-8'))
+        raise Exception("terminate")
+    else:
+      self.remove_org = 0
+      self.add_org = 0
+    self.connection.send(status_message.encode('utf-8'))
 
   def quit_program(self):
     pass

@@ -38,23 +38,29 @@ class Helper:
   @staticmethod
   def remove_organisation(organisation_name):
     try:
+      if Helper.find_organisation(organisation_name) == "not_found":
+        return False, "Organisation is not found"
       f = open("organisations.txt","r")
       lines = f.readlines()
       f.close()
       f = open("organisations.txt","w")
       for line in lines:
+        if len(line.split()) != 4:
+          continue
         name = line.split()[0]
         if name.lower() != organisation_name.lower():
           f.write(line)
       f.close()
-      return "Removing organisation is successful"
+      return True, "Removing organisation is successful"
     except:
-      return "Removing organisation failed"
+      return False, "Removing organisation failed"
 
   @staticmethod
   def find_organisation(organisation_name):
     with open("organisations.txt") as file:
       for line in file:
+        if len(line.split()) != 4:
+          continue
         (name, server_name, ip_address, no_of_minutes) = line.split()
         if name.lower() == organisation_name.lower():
           org_details = {
@@ -70,6 +76,8 @@ class Helper:
     organisations = []
     with open("organisations.txt") as file:
       for line in file:
+        if len(line.split()) != 4:
+          continue
         (name, server_name, ip_address, no_of_minutes) = line.split()
         org_details = {
             'name' : name,
@@ -103,12 +111,14 @@ class Helper:
   def add_new_organisation(organisation):
     try:
       organisation = json.loads(organisation)
+      if Helper.find_organisation(organisation['organisation_name']) != "not_found":
+        return False, "Organisation is already present"
       organisation_string = organisation['organisation_name'] + " " + organisation['server_name'] + " " + organisation["ip_address"] + " " + organisation["connection_time"] + "\n"
       with open("organisations.txt", "a") as file:
         file.write(organisation_string)
-      return "Organisation successfully added.."
+      return True, "Organisation successfully added.."
     except:
-      return "Organisation add failed.."
+      return False, "Organisation add failed.."
 
   @staticmethod
   def format_response(response):

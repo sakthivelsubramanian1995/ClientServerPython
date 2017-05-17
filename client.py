@@ -3,7 +3,7 @@ from helper import *
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 HOST = '127.0.0.1'
-PORT = 1234
+PORT = 1235
 
 try:
   client_socket.connect((HOST, PORT))
@@ -63,6 +63,9 @@ class Client:
     organisation = json.dumps(organisation)
     client_socket.send(organisation.encode('utf-8'))
     message = client_socket.recv(1024).decode('utf-8')
+    if message == "terminate":
+      print("Reached maximum tries")
+      raise KeyboardInterrupt("terminate")
     print(message)
 
   @staticmethod
@@ -70,6 +73,9 @@ class Client:
     organisation_name = input("Enter organisation name:  ")
     client_socket.send(organisation_name.encode('utf-8'))
     message = client_socket.recv(1024).decode('utf-8')
+    if message == "terminate":
+      print("Reached maximum tries")
+      raise KeyboardInterrupt("terminate")
     print(message)
 
   @staticmethod
